@@ -11,9 +11,9 @@
  * Use an array to store a multiset of geotags.
  * - The array must not be accessible from outside the store.
  * 
- * Provide a method 'addGeoTag' to add a geotag to the store.
+ * Provide a method 'addGeoTag' to add a geotag to the store.DONE
  * 
- * Provide a method 'removeGeoTag' to delete geo-tags from the store by name.
+ * Provide a method 'removeGeoTag' to delete geo-tags from the store by name. DONE
  * 
  * Provide a method 'getNearbyGeoTags' that returns all geotags in the proximity of a location.
  * - The location is given as a parameter.
@@ -23,9 +23,74 @@
  * - The proximity constrained is the same as for 'getNearbyGeoTags'.
  * - Keyword matching should include partial matches from name or hashtag fields. 
  */
-class InMemoryGeoTagStore{
 
+
+const GeoTag = require('./geotag'); //GeoTag KLasse importieren
+
+//Hilfsmethode für getNearbyGeoTags()
+const getDistanceSquared = (lat1, lon1, lat2, lon2) => {
+    const dLat = lat1 - lat2;
+    const dLon = lon1 - lon2;
+    return dLat * dLat + dLon * dLon;
+};
+
+
+class InMemoryGeoTagStore{
     // TODO: ... your code here ...
+
+    //1. Array zur Speicherung der Geotags, muss nicht ausserhalb zugänglich sein (#)
+    #geoTags = [];  
+
+    //Methode zum Hinzufügen von GeoTags zum Store
+    addGeoTag(geoTag){
+        if(geoTag instanceof GeoTag){   
+            this.#geoTags.push(geoTag);     //hinzufügen des GeoTags(, wenn er einer ist)
+        } else{
+            console.error("Objekt ist kein GeoTag")
+        }
+    }
+
+    //Methode zum Löschen von Geotags aus dem Store durch ihren Namen
+    removeGeoTag(name){
+        if(!name) return;   //wenn es kein Name ist, kann nichts getan werden
+        
+        //neues Array ohne den GeoTag, der gelöscht werden soll:
+        this.#geoTags = this.#geoTags.filter(function(tag){     //filter erstellt neuen Array, der jetzt bedingung erfüllt
+            return tag.name !== name;   //Alle Elemente behalten, außer die mit dem name
+        })  //-> alter Array wird also mit neuem überschrieben
+    }
+
+    //alle Geotags in der Nähe einer Location zurück (in einem Radius)
+    getNearbyGeoTags(location, radius){
+        if (!location || !radius) return [];
+
+        const radiusSq = radius * radius;
+
+        return this.#geoTags.filter(function(tag){
+             const distanceSq = getDistanceSquared(
+                location.latitude,
+                location.longitude,
+                tag.latitude,
+                tag.longitude
+            );
+            // Liegt quatrierte Distanz im Umkreis?
+            return distanceSq <= radiusSq;
+        })  //Alle Geotags, auf die das zutrifft, werden returned
+    }
+
+    //alle Geotags in einem Umkreis, die ein Stichwort im Namen oder im Hashtag enthalten.
+    searchNearbyGeoTags(location, radius, keyword){
+        if (!location || !radius || !keyword) return[];
+
+        const term = keyword.toLowerCase();
+        const nearbyTags = this.getNearbyGeoTags(location, radius);
+
+       return nearbyTags.filter(function(tag){  //Filtert alle, die keyword enthalten
+        const nameMatches = (tag.name || "").toLowerCase().includes(term);  //Match mit dem Namen?
+        const hashtagMatches = (tag.hashtag || "").toLowerCase().includes(term); //Match mit dem Hashtag?
+        return nameMatches || hashtagMatches; //wenn eins zustrifft
+       })
+}
 
 }
 
