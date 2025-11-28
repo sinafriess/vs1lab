@@ -26,6 +26,7 @@
 
 
 const GeoTag = require('./geotag'); //GeoTag KLasse importieren
+const GeoTagExamples = require('./geotag-examples'); //Beispieldaten importieren
 
 //Hilfsmethode für getNearbyGeoTags()
 const getDistanceSquared = (lat1, lon1, lat2, lon2) => {
@@ -41,6 +42,10 @@ class InMemoryGeoTagStore{
     //1. Array zur Speicherung der Geotags, muss nicht ausserhalb zugänglich sein (#)
     #geoTags = [];  
 
+    constructor() {
+        this.populateGeoTags();
+    }
+
     //Methode zum Hinzufügen von GeoTags zum Store
     addGeoTag(geoTag){
         if(geoTag instanceof GeoTag){   
@@ -48,6 +53,22 @@ class InMemoryGeoTagStore{
         } else{
             console.error("Objekt ist kein GeoTag")
         }
+    }
+
+    //Methode zum Einlesen der Beispieldaten (Populate)
+    populateGeoTags(){
+        const exampleList = GeoTagExamples.tagList;
+
+        exampleList.forEach((data) =>{
+            const name = data[0];
+            const latitude = data[1];
+            const longitude = data[2];
+            const hashtag = data[3];
+            //Beispiele haben keine description
+
+            const tag = new GeoTag(name, "", latitude, longitude, hashtag);
+            this.addGeoTag(tag);
+        });
     }
 
     //Methode zum Löschen von Geotags aus dem Store durch ihren Namen
