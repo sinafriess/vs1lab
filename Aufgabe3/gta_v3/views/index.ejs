@@ -103,7 +103,7 @@
                     </ul>
                 </div>
 
-                <div id="map" class="discovery__map col-6">
+                <div id="map" class="discovery__map col-6" data-tags='<%= JSON.stringify(taglist || []) %>'> <!-- speichert alle gefundenen geotags -->
                     <img src="./images/mapview.jpg" alt="a map with locations" id="mapView" />
                     <span>Result map</span>
                 </div>
