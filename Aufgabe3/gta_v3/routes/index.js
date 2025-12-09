@@ -61,6 +61,30 @@ router.get('/', (req, res) => {
  */
 
 // TODO: ... your code here ...
+router.post('/tagging', (req, res) => {
+
+  // Formulardaten auslesen
+  const name = req.body.tagName;
+  const desc = req.body.tagDescription;
+  const lat = parseFloat(req.body.tagLatitude);
+  const lon = parseFloat(req.body.tagLongitude);
+  const hashtag = req.body.tagHashtag;
+
+  // Neues GeoTag-Objekt erstellen
+  const newTag = new GeoTag(name, desc, lat, lon, hashtag);
+
+  // In den Store speichern
+  store.addGeoTag(newTag);
+
+  // Tags in der Nähe (Radius 5 km laut Vorlage)
+  const resultList = store.getTagsNearby(lat, lon, 5);
+
+  res.render('index', {
+    taglist: resultList,
+    latitude: lat,
+    longitude: lon
+  });
+});
 
 /**
  * Route '/discovery' for HTTP 'POST' requests.
@@ -79,5 +103,34 @@ router.get('/', (req, res) => {
  */
 
 // TODO: ... your code here ...
+router.post('/discovery', (req, res) => {
+
+  const lat = parseFloat(req.body.discLatitude);
+  const lon = parseFloat(req.body.discLongitude);
+  const radius = parseFloat(req.body.searchRadius) || 5;
+  const keyword = req.body.searchKeyword || "";
+
+  let results;
+
+  // Falls ein Suchbegriff existiert
+  if (keyword.trim() !== "") {
+    // 1. Radiusfilter
+    const nearby = store.getTagsNearby(lat, lon, radius);
+    // 2. Keywordfilter
+    results = nearby.filter(tag =>
+      tag.name.toLowerCase().includes(keyword.toLowerCase()) ||
+      tag.hashtag.toLowerCase().includes(keyword.toLowerCase())
+    );
+  } else {
+    // Nur Radiusfilter
+    results = store.getTagsNearby(lat, lon, radius);
+  }
+
+  res.render('index', {
+    taglist: results,
+    latitude: lat,
+    longitude: lon
+  });
+});
 
 module.exports = router;
