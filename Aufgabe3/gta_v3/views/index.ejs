@@ -1,5 +1,3 @@
-<!-- TODO: HTML AUS AUFGABE2 HIERHER KOPIEREN UND DIE BEISPIEL-EINTRÄGE DER DISCOVERY-LISTE MIT DEN FOLGENDEN ZEILEN ERSETZEN -->
-
 <!DOCTYPE html>
 
 <!-- File origin: VS1LAB A1a -->
@@ -50,10 +48,10 @@
                     <input class="tagging__input" type="text" id="tagDescription" name="tagDescription" placeholder="Kurze Beschreibung" rows="3">
 
                     <label class="tagging__label" for="tagLatitude">Breitengrad:</label>
-                    <input class="tagging__input" type="number" id="tagLatitude" name="tagLatitude" value="49.008285" readonly>
+                    <input class="tagging__input" type="number" id="tagLatitude" name="tagLatitude" value="<%= latitude || '' %>" readonly>
 
                     <label class="tagging__label" for="tagLongitude">Längengrad:</label>
-                    <input class="tagging__input" type="number" id="tagLongitude" name="tagLongitude" value="8.3992385" readonly>
+                    <input class="tagging__input" type="number" id="tagLongitude" name="tagLongitude" value="<%= longitude || '' %>" readonly>
 
                     <label class="tagging__label" for="tagHashtag">Hashtag:</label> 
                     <input class="tagging__input" type="text" id="tagHashtag" name="tagHashtag" placeholder="#cafe" pattern="#[a-zA-Z]{1,10}$"> <!--muss mit # beginnen, danach 1-10 Buchstaben-->
@@ -83,9 +81,9 @@
                     <label class="discovery__label" for="searchRadius">Suchradius (km):</label>
                     <input class="discovery__input" type="number" id="searchRadius" name="searchRadius" placeholder="z.B. 5" min="1">
                    
-                    <input type="hidden" id="discLatitude" name="discLatitude" value="49.008285" readonly>
+                    <input type="hidden" id="discLatitude" name="discLatitude" value="<%= latitude || '' %>" readonly>
 
-                    <input type="hidden" id="discLongitude" name="discLongitude" value="8.3992385" readonly>
+                    <input type="hidden" id="discLongitude" name="discLongitude" value="<%= longitude || '' %>" readonly>
 
                     <button class="discovery__button" type="submit">Suchen</button>
                  </fieldset>
@@ -96,11 +94,12 @@
             <div class="discovery__wrapper row">
                 <div class="discovery__taglist col-6">
                     <ul class="discovery__results" id="discoveryResults">
-                        <li>Castle (49.01379, 8.404435) #sight</li>
-                        <li>IWI (49.01379, 8.390071) #edu</li>
-                        <% if (taglist !== undefined) taglist.forEach(function(gtag) { %>
+                       <!-- <li>Castle (49.01379, 8.404435) #sight</li> -->
+                       <!--<li>IWI (49.01379, 8.390071) #edu</li> -->
+                       <% if (taglist !== undefined) taglist.forEach(function(gtag) { %>
                             <li><%= gtag.name %> ( <%= gtag.latitude %>,<%= gtag.longitude %>) <%= gtag.hashtag %> </li>
-                        <% }); %>
+                       <% }); %>
+                        
                     </ul>
                 </div>
 
@@ -122,9 +121,12 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="./javascripts/geotagging.js"></script>
-    <script src="./javascripts/location-helper.js"></script>
-    <script src="./javascripts/map-manager.js"></script>
     
 </body>
 
 </html>
+<!-- TODO: HTML AUS AUFGABE2 HIERHER KOPIEREN UND DIE BEISPIEL-EINTRÄGE DER DISCOVERY-LISTE MIT DEN FOLGENDEN ZEILEN ERSETZEN -->
+
+<!--<% if (taglist !== undefined) taglist.forEach(function(gtag) { %>
+    <li><%= gtag.name %> ( <%= gtag.latitude %>,<%= gtag.longitude %>) <%= gtag.hashtag %> </li>
+<% }); %> -->

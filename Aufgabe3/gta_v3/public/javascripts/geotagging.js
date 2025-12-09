@@ -1,4 +1,4 @@
-// File origin: VS1LAB A2
+// File origin: VS1LAB A2.
 
 /* eslint-disable no-unused-vars */
 
