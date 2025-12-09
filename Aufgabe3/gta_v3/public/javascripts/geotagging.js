@@ -42,9 +42,47 @@ function updateLocation() {
         discLatQuery.value.trim() !== "" &&
         discLonQuery.value.trim() !== "";
 
+         const applyLocation = (lat, lon) => {
+        tagLatQuery.value  = lat;
+        tagLonQuery.value  = lon;
+        discLatQuery.value = lat;
+        discLonQuery.value = lon;
+
+        mapManager.initMap(lat, lon); //Leaflet Karte erstellen
+
+        
+        const mapContainer = document.getElementById("map"); // alle tags mit map aus html lesen, array erstellen
+        let tags = [];
+
+        if (mapContainer && mapContainer.dataset && mapContainer.dataset.tags) { //damit programm nicht abstürzt
+            try {
+                tags = JSON.parse(mapContainer.dataset.tags);
+            } catch (e) {
+                console.error("Fehler beim Parsen von data-tags:", e);
+            }
+        }
+
+        mapManager.updateMarkers(lat, lon, tags);
+
+        if (mapContainer) {
+            const placeholderImg = mapContainer.querySelector("img");
+            if (placeholderImg) {
+                placeholderImg.remove(); // Platzhalter Map Bild löschen 
+            }
+
+            const caption = mapContainer.querySelector("span");
+            if (caption) {
+                caption.remove(); // Platzhalter Text löschen 
+            }
+        }
+    };
+    
+
     // Test, ob Koordinaten schon gesetzt sind
     if (coordsAlreadySet) {
-        //console.log("Koordinaten vorhanden – keine neue Standortabfrage.");
+        const lat = tagLatQuery.value.trim(); //vorhandene Koordinaten verwenden
+        const lon = tagLonQuery.value.trim();
+        applyLocation(lat, lon);
         return;
     }
 
@@ -53,31 +91,7 @@ function updateLocation() {
         const lat = locationHelper.latitude;  // Getter verwenden
         const lon = locationHelper.longitude;
 
-        // Tagging Formular
-        const tagLat = document.getElementById("tagLatitude").value = lat;
-        const tagLon = document.getElementById("tagLongitude").value = lon;
-
-        // Discovery Formular
-        const discLat = document.getElementById("discLatitude").value = lat;
-        const discLon = document.getElementById("discLongitude").value = lon;
-
-
-        // neue Karte mit Marker 
-        mapManager.initMap(lat, lon);
-        mapManager.updateMarkers(lat, lon);
-
-        const mapContainer = document.getElementById("map"); //element mit ID map in html
-        if (mapContainer) {
-            const placeholderImg = mapContainer.querySelector("img"); 
-            if (placeholderImg) {
-                placeholderImg.remove();//Platzhalter Map Bild löschen 
-            }
-
-            const caption = mapContainer.querySelector("span");
-            if (caption) {
-                caption.remove();//Platzhalter Text löschen 
-            }
-        }
+        applyLocation(lat, lon);
     });
 }
 
