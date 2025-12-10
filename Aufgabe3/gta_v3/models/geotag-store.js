@@ -99,6 +99,15 @@ class InMemoryGeoTagStore{
         })  //Alle Geotags, auf die das zutrifft, werden returned
     }
 
+    getTagsNearby(lat, lon, radius) {
+        if (lat == null || lon == null || !radius) return [];
+        const location = {
+            latitude: parseFloat(lat),
+            longitude: parseFloat(lon)
+        };
+        return this.getNearbyGeoTags(location, radius);
+    }
+
     //alle Geotags in einem Umkreis, die ein Stichwort im Namen oder im Hashtag enthalten.
     searchNearbyGeoTags(location, radius, keyword){
         if (!location || !radius || !keyword) return[];

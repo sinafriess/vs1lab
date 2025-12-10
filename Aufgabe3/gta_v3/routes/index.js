@@ -1,85 +1,33 @@
 // File origin: VS1LAB A3
 
-/**
- * This script defines the main router of the GeoTag server.
- * It's a template for exercise VS1lab/Aufgabe3
- * Complete all TODOs in the code documentation.
- */
-
-/**
- * Define module dependencies.
- */
-
 const express = require('express');
 const router = express.Router();
 
-/**
- * The module "geotag" exports a class GeoTagStore. 
- * It represents geotags.
- * 
- * TODO: implement the module in the file "../models/geotag.js"
- */
-// eslint-disable-next-line no-unused-vars
 const GeoTag = require('../models/geotag');
-
-/**
- * The module "geotag-store" exports a class GeoTagStore. 
- * It provides an in-memory store for geotag objects.
- * 
- * TODO: implement the module in the file "../models/geotag-store.js"
- */
-// eslint-disable-next-line no-unused-vars
 const GeoTagStore = require('../models/geotag-store');
-
-/**
- * Route '/' for HTTP 'GET' requests.
- * (http://expressjs.com/de/4x/api.html#app.get.method)
- *
- * Requests cary no parameters
- *
- * As response, the ejs-template is rendered without geotag objects.
- */
 
 const store = new GeoTagStore();
 
-// TODO: extend the following route example if necessary
+// GET /
 router.get('/', (req, res) => {
-  res.render('index', { taglist: [], latitude: "", longitude: ""})
+  res.render('index', { taglist: [], latitude: "", longitude: "" });
 });
 
-/**
- * Route '/tagging' for HTTP 'POST' requests.
- * (http://expressjs.com/de/4x/api.html#app.post.method)
- *
- * Requests cary the fields of the tagging form in the body.
- * (http://expressjs.com/de/4x/api.html#req.body)
- *
- * Based on the form data, a new geotag is created and stored.
- *
- * As response, the ejs-template is rendered with geotag objects.
- * All result objects are located in the proximity of the new geotag.
- * To this end, "GeoTagStore" provides a method to search geotags 
- * by radius around a given location.
- */
-
-// TODO: ... your code here ...
+// POST /tagging
 router.post('/tagging', (req, res) => {
-
-  // Formulardaten auslesen
   const name = req.body.tagName;
   const desc = req.body.tagDescription;
-  const lat = parseFloat(req.body.tagLatitude);
-  const lon = parseFloat(req.body.tagLongitude);
+  const lat  = parseFloat(req.body.tagLatitude);
+  const lon  = parseFloat(req.body.tagLongitude);
   const hashtag = req.body.tagHashtag;
 
-  // Neues GeoTag-Objekt erstellen
   const newTag = new GeoTag(name, desc, lat, lon, hashtag);
-
-  // In den Store speichern
   store.addGeoTag(newTag);
 
-  // Tags in der Nähe (Radius 5 km laut Vorlage)
-  const resultList = store.getTagsNearby(lat, lon, 5);
+  const location = { latitude: lat, longitude: lon };
+
+  // WICHTIG: richtige Methode + richtiger Parameter
+  const resultList = store.getNearbyGeoTags(location, 5);
 
   res.render('index', {
     taglist: resultList,
@@ -88,44 +36,21 @@ router.post('/tagging', (req, res) => {
   });
 });
 
-/**
- * Route '/discovery' for HTTP 'POST' requests.
- * (http://expressjs.com/de/4x/api.html#app.post.method)
- *
- * Requests cary the fields of the discovery form in the body.
- * This includes coordinates and an optional search term.
- * (http://expressjs.com/de/4x/api.html#req.body)
- *
- * As response, the ejs-template is rendered with geotag objects.
- * All result objects are located in the proximity of the given coordinates.
- * If a search term is given, the results are further filtered to contain 
- * the term as a part of their names or hashtags. 
- * To this end, "GeoTagStore" provides methods to search geotags 
- * by radius and keyword.
- */
-
-// TODO: ... your code here ...
+// POST /discovery
 router.post('/discovery', (req, res) => {
+  const lat  = parseFloat(req.body.discLatitude);
+  const lon  = parseFloat(req.body.discLongitude);
+  const radius  = parseFloat(req.body.searchRadius) || 5;
+  const keyword = (req.body.searchKeyword || "").trim();
 
-  const lat = parseFloat(req.body.discLatitude);
-  const lon = parseFloat(req.body.discLongitude);
-  const radius = parseFloat(req.body.searchRadius) || 5;
-  const keyword = req.body.searchKeyword || "";
+  const location = { latitude: lat, longitude: lon };
 
   let results;
-
-  // Falls ein Suchbegriff existiert
-  if (keyword.trim() !== "") {
-    // 1. Radiusfilter
-    const nearby = store.getTagsNearby(lat, lon, radius);
-    // 2. Keywordfilter
-    results = nearby.filter(tag =>
-      tag.name.toLowerCase().includes(keyword.toLowerCase()) ||
-      tag.hashtag.toLowerCase().includes(keyword.toLowerCase())
-    );
+  if (keyword !== "") {
+    // WICHTIG: hier die Suchmethode verwenden
+    results = store.searchNearbyGeoTags(location, radius, keyword);
   } else {
-    // Nur Radiusfilter
-    results = store.getTagsNearby(lat, lon, radius);
+    results = store.getNearbyGeoTags(location, radius);
   }
 
   res.render('index', {
