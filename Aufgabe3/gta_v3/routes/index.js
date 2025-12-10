@@ -8,13 +8,28 @@ const GeoTagStore = require('../models/geotag-store');
 
 const store = new GeoTagStore();
 
+
 // GET /
 router.get('/', (req, res) => {
-  res.render('index', { taglist: [], latitude: "", longitude: "" });
+  //Auf globalen Store zugreifen (siehe app.js, alle Tags, die schon drin  sind)
+  const geoTagStore = req.app.locals.geoTagStore;
+
+  //Alle Tags abrufen
+  const allTags = geoTagStore.getAllGeoTags();
+
+
+ res.render('index', { 
+      taglist: allTags, 
+      latitude: "", 
+      longitude: "",
+      searchTerm: "" 
+  });
 });
 
 // POST /tagging
 router.post('/tagging', (req, res) => {
+  const store = req.app.locals.geoTagStore;
+
   const name = req.body.tagName;
   const desc = req.body.tagDescription;
   const lat  = parseFloat(req.body.tagLatitude);
@@ -23,6 +38,8 @@ router.post('/tagging', (req, res) => {
 
   const newTag = new GeoTag(name, desc, lat, lon, hashtag);
   store.addGeoTag(newTag);
+
+  const allTags = store.getAllGeoTags();
 
   const location = { latitude: lat, longitude: lon };
 

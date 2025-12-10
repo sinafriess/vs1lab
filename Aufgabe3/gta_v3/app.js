@@ -46,6 +46,11 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+const geoTagStore = require('./models/geotag-store');
+//Store Instanz erstellen, für alle Router verfügbar 
+const getTagStore = new geoTagStore();
+app.locals.geoTagStore = getTagStore;
+
 // Set dedicated script for routing
 app.use('/', indexRouter);
 

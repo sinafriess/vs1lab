@@ -81,6 +81,11 @@ class InMemoryGeoTagStore{
         })  //-> alter Array wird also mit neuem überschrieben
     }
 
+    //Alle gespeicherte GeoTags zurückgeben => dass beim starten der seite alle da sind
+    getAllGeoTags() {
+        return this.#geoTags;
+    }
+
     //alle Geotags in der Nähe einer Location zurück (in einem Radius)
     getNearbyGeoTags(location, radius){
         if (!location || !radius) return [];
