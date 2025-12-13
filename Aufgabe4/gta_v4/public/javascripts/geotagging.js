@@ -21,6 +21,9 @@ console.log("The geoTagging script is going to start...");
 
 
 const mapManager = new MapManager();
+
+let currentLatitude = null; //am anfang kien standort bekannt 
+let currentLongitude = null;
 /**
  * TODO: 'updateLocation'
  * A function to retrieve the current location and update the page.
@@ -42,11 +45,14 @@ function updateLocation() {
         discLatQuery.value.trim() !== "" &&
         discLonQuery.value.trim() !== "";
 
-         const applyLocation = (lat, lon) => {
+        const applyLocation = (lat, lon) => {
         tagLatQuery.value  = lat;
         tagLonQuery.value  = lon;
         discLatQuery.value = lat;
         discLonQuery.value = lon;
+
+        currentLatitude = parseFloat(lat); //string in zahl umwandeln
+        currentLongitude = parseFloat(lon);
 
         mapManager.initMap(lat, lon); //Leaflet Karte erstellen
 
@@ -95,8 +101,76 @@ function updateLocation() {
     });
 }
 
+
+function updateDiscoveryView(tags) {
+    const list = document.getElementById("discoveryResults"); //liste aus html holen
+    list.innerHTML = ""; // alle bisherigen <li> löschen 
+
+    tags.forEach(tag => {
+        const li = document.createElement("li"); //neues listenelement erzeugen
+        li.textContent = `${tag.name} (${tag.latitude}, ${tag.longitude}) ${tag.hashtag}`; //textinhalt
+        list.appendChild(li); //in liste einfügen
+    });
+
+    if (currentLatitude !== null && currentLongitude !== null) {
+        mapManager.updateMarkers(currentLatitude, currentLongitude, tags); //marker setzen
+    }
+}
+
+async function performDiscoverySearch() {
+    const keyword = document.getElementById("searchKeyword").value; //sucher angaben auslesen
+    const radius  = document.getElementById("searchRadius").value;
+    const lat     = document.getElementById("discLatitude").value;
+    const lon     = document.getElementById("discLongitude").value;
+
+    const params = new URLSearchParams({
+        latitude: lat, //url parameter
+        longitude: lon,
+        radius: radius,
+        searchTerm: keyword
+    });
+
+    const response = await fetch(`/api/geotags?${params.toString()}`); //http get anfrage an server
+    const tags = await response.json(); //in json umwandeln
+
+    updateDiscoveryView(tags); //aktualisiert marker auf karte 
+}
+
+async function handleTaggingSubmit(event) {
+    event.preventDefault(); //damit seite nicht neu lädt 
+
+    const geoTag = {
+        name: document.getElementById("tagName").value, //json objekt bauen und eingaben auslesen
+        description: document.getElementById("tagDescription").value,
+        latitude: parseFloat(document.getElementById("tagLatitude").value),
+        longitude: parseFloat(document.getElementById("tagLongitude").value),
+        hashtag: document.getElementById("tagHashtag").value
+    };
+
+    await fetch("/api/geotags", { //post request senden
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(geoTag)
+    });
+
+    await performDiscoverySearch(); //discovery liste automatisch aktualisieren
+}
+
+async function handleDiscoverySubmit(event) { //wenn user auf suchen klickt im discovery formular
+    event.preventDefault();
+    await performDiscoverySearch();
+}
 // Wait for the page to fully load its DOM content, then call updateLocation
 
 document.addEventListener("DOMContentLoaded", () => {
     updateLocation();
+
+    document
+        .getElementById("tag-form")
+        .addEventListener("submit", handleTaggingSubmit); //wird bei event aufgerufen 
+
+    document
+        .getElementById("discoveryFilterForm")
+        .addEventListener("submit", handleDiscoverySubmit);
+
 });
