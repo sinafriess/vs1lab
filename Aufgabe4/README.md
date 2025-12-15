@@ -116,12 +116,12 @@ Zur Übersicht folgen noch mal alle Anforderungen in kompakter Form als Checklis
 
 ### 1. Teilaufgabe: Server-Erweiterung
 
-- [ ] Neue **Routen** realisieren (`./routers/index.js`)
-  - [ ] GET `/api/geotags`
-    - [ ] Filterbar nach Suchbegriff und Location
-  - [ ] POST `/api/geotags`
-    - [ ] *Response:* neuer GeoTag, URL im Header, HTTP Response Code 201
-  - [ ] GET `/api/geotags/:id`
+- [] Neue **Routen** realisieren (`./routers/index.js`)
+  - [x] GET `/api/geotags`
+    - [x] Filterbar nach Suchbegriff und Location
+  - [x] POST `/api/geotags`
+    - [x] *Response:* neuer GeoTag, URL im Header, HTTP Response Code 201
+  - [x] GET `/api/geotags/:id`
   - [ ] PUT `/api/geotags/:id`
     - [ ] *Response:* aktualisierter GeoTag
   - [ ] DELETE `/api/geotags/:id`
