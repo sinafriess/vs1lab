@@ -67,7 +67,7 @@ router.post('/tagging', (req, res) => {
   res.render('index', {
     taglist: resultList,
     latitude: lat,
-    longitude: lon,
+    longitude: lon
   });
 });
 
