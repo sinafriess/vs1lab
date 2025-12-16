@@ -51,7 +51,7 @@ const geoTagStore = require('./models/geotag-store');
 const getTagStore = new geoTagStore();
 app.locals.geoTagStore = getTagStore;
 
-// Set dedicated script for routing
+// Routing
 app.use('/', indexRouter);
 
 // catch 404 and forward to error handler

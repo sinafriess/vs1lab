@@ -43,7 +43,6 @@ router.post('/tagging', (req, res) => {
 
   const location = { latitude: lat, longitude: lon };
 
-  // WICHTIG: richtige Methode + richtiger Parameter
   const resultList = store.getNearbyGeoTags(location, 5);
 
   res.render('index', {
@@ -64,7 +63,6 @@ router.post('/discovery', (req, res) => {
 
   let results;
   if (keyword !== "") {
-    // WICHTIG: hier die Suchmethode verwenden
     results = store.searchNearbyGeoTags(location, radius, keyword);
   } else {
     results = store.getNearbyGeoTags(location, radius);

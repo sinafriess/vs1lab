@@ -42,9 +42,9 @@ function updateLocation() {
         discLatQuery.value.trim() !== "" &&
         discLonQuery.value.trim() !== "";
 
-         const applyLocation = (lat, lon) => {
-        tagLatQuery.value  = lat;
-        tagLonQuery.value  = lon;
+    const applyLocation = (lat, lon) => {
+        tagLatQuery.value = lat;
+        tagLonQuery.value = lon;
         discLatQuery.value = lat;
         discLonQuery.value = lon;
 
@@ -58,7 +58,7 @@ function updateLocation() {
             try {
                 tags = JSON.parse(mapContainer.dataset.tags);
             } catch (e) {
-                console.error("Fehler beim Parsen von data-tags:", e);
+                console.error("Fehler beim Parsen von Data-Tags:", e);
             }
         }
 
