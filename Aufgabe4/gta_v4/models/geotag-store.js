@@ -131,17 +131,17 @@ class InMemoryGeoTagStore{
         const hashtagMatches = (tag.hashtag || "").toLowerCase().includes(term); //Match mit dem Hashtag?
         return nameMatches || hashtagMatches; //wenn eins zustrifft
        })
-}
+    }
 
-// neu: Tag per ID holen
+    // neu: Tag per ID holen
     getGeoTagById(id) {
         return this.#geoTags.find(tag => tag.id == id);
     }
 
-//neu: Tag per ID löschen
-removeGeoTagById(id){
+    //neu: Tag per ID löschen
+    removeGeoTagById(id){
     this.#geoTags = this.#geoTags.filter(tag => tag.id != id); //überschreibt geotags mit einem array mit allen außer den mit der ID
-}
+    }
 
 // neu: Tag aktualisieren (für A4 API PUT /:id)
     updateGeoTag(id, newTagData) {

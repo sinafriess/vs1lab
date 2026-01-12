@@ -2,27 +2,26 @@
 @baseUrl = http://localhost:3000
 
 ### 1. Erstellen (Create)
-# Sendet einen neuen GeoTag an den Server.
-# Erwartet: Status 201 Created und das neue Objekt (mit ID!) als Antwort.
+# Sendet einen neuen GeoTag an den Server
+# Erwartet: Status 201 Created und das neue geoTag 
 POST {{baseUrl}}/api/geotags
 Content-Type: application/json
 
 {
-    "name": "Test-Labor",
-    "latitude": 49.015,
-    "longitude": 8.395,
+    "name": "Test in der Bib",
+    "latitude": 48.978,
+    "longitude": 8.403,
     "hashtag": "#test",
-    "description": "Ein Test über die API"
+    "description": "Bib testet API"
 }
 
 ### 2. Suchen (Search)
-# Sucht nach dem eben erstellten Tag (Filter nach Begriff).
-GET {{baseUrl}}/api/geotags?searchterm=Test
+# Sucht nach dem gerade erstellten Tag (suche nach term)
+GET {{baseUrl}}/api/geotags?searchterm=Bib
 
 ### 3. Auslesen (Read)
-# Liest einen spezifischen Tag anhand der ID aus.
-# WICHTIG: Ersetzen Sie die '12' hier mit der ID, die Sie bei Schritt 1 zurückbekommen haben!
-# (Da beim Start 11 Beispiele geladen werden, ist der erste neue Tag meist die 12)
+# Liest einen Tag mit der ID aus
+
 GET {{baseUrl}}/api/geotags/12
 
 ### 4. Ändern (Update)
@@ -31,10 +30,10 @@ PUT {{baseUrl}}/api/geotags/12
 Content-Type: application/json
 
 {
-    "name": "Test-Labor (Geändert)",
+    "name": "Text in der Bib finalFINALFINAAAAAL",
     "latitude": 49.015,
     "longitude": 8.395,
-    "hashtag": "#update",
+    "hashtag": "#bibupdatefinal",
     "description": "Wurde erfolgreich geändert"
 }
 

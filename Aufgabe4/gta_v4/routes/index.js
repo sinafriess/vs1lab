@@ -126,7 +126,10 @@ router.get('/', (req, res) => {
 
 router.get('/api/geotags', (req,res) => {
   const geoTagStore = req.app.locals.geoTagStore;   //Zugriff auf globalen Speicher (store)
-  const term = req.query.searchTerm || ""; //liest suchbegriff aus der url, wenn keiner da: leer
+  //Robusteres Auslesen des Suchbegriffs
+  const queryParam = req.query.searchterm || req.query.searchTerm || req.query.q || "";
+
+  const term = queryParam.toLowerCase().trim();
   const lat = req.query.latitude; //liest Latitude aus url
   const lon = req.query.longitude; // "" Longitude
   const radius = parseFloat(req.query.radius) || 10; //radius auslesem, oder falls keiner angeeben: auf standardwert 10 setzen
