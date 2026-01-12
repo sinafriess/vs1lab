@@ -126,8 +126,8 @@ Zur Übersicht folgen noch mal alle Anforderungen in kompakter Form als Checklis
     - [x] *Response:* aktualisierter GeoTag
   - [x] DELETE `/api/geotags/:id`
     - [x] *Response:* gelöschter GeoTag
-- [ ] **Servermodule erweitern**
-  - [ ] Klasse `InMemoryGeoTagStore` mit Primärschlüsseln für GeoTags
+- [x] **Servermodule erweitern**
+  - [x] Klasse `InMemoryGeoTagStore` mit Primärschlüsseln für GeoTags
 - [ ] Backend **Demonstrator** mit **generischem HTTP-Client**
   - [ ]  **Lebenszyklus** für GeoTag vorführen: Erstellen, Auslesen, Ändern, Suchen, Löschen
 

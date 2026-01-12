@@ -1,0 +1,43 @@
+### Konfiguration
+@baseUrl = http://localhost:3000
+
+### 1. Erstellen (Create)
+# Sendet einen neuen GeoTag an den Server.
+# Erwartet: Status 201 Created und das neue Objekt (mit ID!) als Antwort.
+POST {{baseUrl}}/api/geotags
+Content-Type: application/json
+
+{
+    "name": "Test-Labor",
+    "latitude": 49.015,
+    "longitude": 8.395,
+    "hashtag": "#test",
+    "description": "Ein Test über die API"
+}
+
+### 2. Suchen (Search)
+# Sucht nach dem eben erstellten Tag (Filter nach Begriff).
+GET {{baseUrl}}/api/geotags?searchterm=Test
+
+### 3. Auslesen (Read)
+# Liest einen spezifischen Tag anhand der ID aus.
+# WICHTIG: Ersetzen Sie die '12' hier mit der ID, die Sie bei Schritt 1 zurückbekommen haben!
+# (Da beim Start 11 Beispiele geladen werden, ist der erste neue Tag meist die 12)
+GET {{baseUrl}}/api/geotags/12
+
+### 4. Ändern (Update)
+# Ändert den Namen des Tags mit der ID 12.
+PUT {{baseUrl}}/api/geotags/12
+Content-Type: application/json
+
+{
+    "name": "Test-Labor (Geändert)",
+    "latitude": 49.015,
+    "longitude": 8.395,
+    "hashtag": "#update",
+    "description": "Wurde erfolgreich geändert"
+}
+
+### 5. Löschen (Delete)
+# Löscht den Tag mit der ID 12.
+DELETE {{baseUrl}}/api/geotags/12

@@ -150,6 +150,15 @@ router.get('/api/geotags', (req,res) => {
     }
   } else {  //2.Fall: keine Koord., dann globale Liste zurückgeben
     results = geoTagStore.getAllGeoTags();
+
+    // Erweiterung: Wenn ein Suchbegriff da ist, filtern wir die globale Liste 
+    if (term) {
+        results = results.filter(tag => {
+            const nameMatches = (tag.name || "").toLowerCase().includes(term);
+            const hashtagMatches = (tag.hashtag || "").toLowerCase().includes(term);
+            return nameMatches || hashtagMatches;
+        });
+    }
   }
   
   //Sendet Antworrt mit HTTP Status 200 (OK) und ergebnis im json Format
