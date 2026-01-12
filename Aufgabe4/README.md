@@ -122,10 +122,10 @@ Zur Übersicht folgen noch mal alle Anforderungen in kompakter Form als Checklis
   - [x] POST `/api/geotags`
     - [x] *Response:* neuer GeoTag, URL im Header, HTTP Response Code 201
   - [x] GET `/api/geotags/:id`
-  - [ ] PUT `/api/geotags/:id`
-    - [ ] *Response:* aktualisierter GeoTag
-  - [ ] DELETE `/api/geotags/:id`
-    - [ ] *Response:* gelöschter GeoTag
+  - [x] PUT `/api/geotags/:id`
+    - [x] *Response:* aktualisierter GeoTag
+  - [x] DELETE `/api/geotags/:id`
+    - [x] *Response:* gelöschter GeoTag
 - [ ] **Servermodule erweitern**
   - [ ] Klasse `InMemoryGeoTagStore` mit Primärschlüsseln für GeoTags
 - [ ] Backend **Demonstrator** mit **generischem HTTP-Client**

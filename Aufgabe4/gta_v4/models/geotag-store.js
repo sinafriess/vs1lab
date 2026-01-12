@@ -127,6 +127,21 @@ class InMemoryGeoTagStore{
        })
 }
 
+// A4: Tag aktualisieren (für API PUT /:id)
+    updateGeoTag(id, newTagData) {
+        const tag = this.getGeoTagById(id);
+        if (tag) {
+            // Nur Felder aktualisieren, die neu gesendet wurden
+            if (newTagData.name) tag.name = newTagData.name;
+            if (newTagData.latitude) tag.latitude = newTagData.latitude;
+            if (newTagData.longitude) tag.longitude = newTagData.longitude;
+            if (newTagData.hashtag) tag.hashtag = newTagData.hashtag;
+            if (newTagData.description) tag.description = newTagData.description;
+            return tag;
+        }
+        return null;
+    }
+
 }
 
 module.exports = InMemoryGeoTagStore

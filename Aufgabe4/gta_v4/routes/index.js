@@ -231,7 +231,22 @@ router.post('/api/geotags',(req, res) => {
  */
 //aktualisiert Tag
 // TODO: ... your code here ...
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+router.put('/api/geotags/:id', (req, res) => {
+  const geoTagStore = req.app.locals.geoTagStore;
+  const id = req.params.id; // holt die id aus der url
+  const tagData = req.body; //und die neuen daten aus dem JSON-Body
+
+  // nutzt updateGeoTag(neu) aus geoTagStore, um Tag zu aktualisieren
+  const updatedTag = geoTagStore.updateGeoTag(id, tagData);
+
+  if (updatedTag) { //wenn es geklappt hat:
+      // 200 OK: Erfolgreich aktualisiert, sende Tag zurück
+      res.status(200).json(updatedTag);
+  } else {
+      // 404 Not Found: ID existiert nicht
+      res.status(404).json({ error: "GeoTag not found" });
+  }
+});
 
 /**
  * Route '/api/geotags/:id' for HTTP 'DELETE' requests.
@@ -245,5 +260,17 @@ router.post('/api/geotags',(req, res) => {
  */
 
 // TODO: ... your code here ...
+router.delete('/api/geotags/:id', (req, res) => {
+  const geoTagStore = req.app.locals.geoTagStore;
+  const id = req.params.id; // holt die id aus der url
 
+  const tag = geoTagStore.getGeoTagById(id); //sucht den Geotag durch seine ID
+
+  if (tag) {  //wenn es diesen Geotag gibt:
+      geoTagStore.removeGeoTagById(id); //wird er gelöscht + response
+      res.status(200).json({ message: "GeoTag deleted", id: id });
+  } else {
+      res.status(404).json({ error: "GeoTag not found" });
+  }
+});
 module.exports = router;
