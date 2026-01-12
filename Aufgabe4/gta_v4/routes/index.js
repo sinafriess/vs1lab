@@ -71,7 +71,7 @@ router.post('/tagging', (req, res) => {
   });
 });
 
-// POST /discovery
+// POST /discovery (A3)
 router.post('/discovery', (req, res) => {
   const lat  = parseFloat(req.body.discLatitude);
   const lon  = parseFloat(req.body.discLongitude);
@@ -121,9 +121,54 @@ router.get('/', (req, res) => {
  * If 'searchterm' is present, it will be filtered by search term.
  * If 'latitude' and 'longitude' are available, it will be further filtered based on radius.
  */
-
+//also: Filtert nach Suchbegriff und Location (Radius), falls vorhanden
 // TODO: ... your code here ...
 
+router.get('/api/geotags', (req,res) => {
+  const geoTagStore = req.app.locals.geoTagStore;   //Zugriff auf globalen Speicher (store)
+  //Robusteres Auslesen des Suchbegriffs
+  const queryParam = req.query.searchterm || req.query.searchTerm || req.query.q || "";
+
+  const term = queryParam.toLowerCase().trim();
+  const lat = req.query.latitude; //liest Latitude aus url
+  const lon = req.query.longitude; // "" Longitude
+  const radius = parseFloat(req.query.radius) || 10; //radius auslesem, oder falls keiner angeeben: auf standardwert 10 setzen
+  //              ^stellt sicher, dass es eine Zahl ist
+
+  let results = []; //initialisiert Ergebnisliste als leeres Array
+  //^Wert kann sich später noch ändern
+
+  //1. Fall: Lat und Lon vorhanden
+  if (lat && lon){
+    //erstellt location objekt mit Koordinaten (string-> float)
+    const location = {latitude: parseFloat(lat), longitude: parseFloat(lon) };
+    
+    //Unterfall: Wenn zusätzlich ein term (suchbegriff)
+    if(term){
+      //sucht geotags in der Nähe nach suchbegriff
+      results = geoTagStore.getNearbyGeoTags(location, radius, term);
+    } else {
+      //sucht in der nähe ohne suchbegriff
+      results = geoTagStore.getNearbyGeoTags(location, radius);
+    }
+  } else {  //2.Fall: keine Koord., dann globale Liste zurückgeben
+    results = geoTagStore.getAllGeoTags();
+
+    // Erweiterung: Wenn ein Suchbegriff da ist, filtern wir die globale Liste 
+    if (term) {
+        results = results.filter(tag => {
+            const nameMatches = (tag.name || "").toLowerCase().includes(term);
+            const hashtagMatches = (tag.hashtag || "").toLowerCase().includes(term);
+            return nameMatches || hashtagMatches;
+        });
+    }
+  }
+  
+  //Sendet Antworrt mit HTTP Status 200 (OK) und ergebnis im json Format
+  res.status(200).json(results);
+
+
+});
 
 /**
  * Route '/api/geotags' for HTTP 'POST' requests.
@@ -135,9 +180,28 @@ router.get('/', (req, res) => {
  * The URL of the new resource is returned in the header as a response.
  * The new resource is rendered as JSON in the response.
  */
-
+//erstellt neuen Geotag
 // TODO: ... your code here ...
 
+router.post('/api/geotags',(req, res) => {
+  const geoTagStore = req.app.locals.geoTagStore;   //Zugriff auf globalen Speicher (store)
+  //Daten aus Body lesen (json)
+  const { name, description, latitude, longitude, hashtag } = req.body;
+
+  //neuer Tag:
+  const newTag = new GeoTag(name, description, latitude, longitude, hashtag);
+
+  //Store fügt Tag hinzu, bekommt ID
+  geoTagStore.addGeoTag(newTag);
+
+  //URL der neuen Ressource in den Haeder setzen, wenn es eine id hat
+  if (newTag.id) {
+    res.location('/api/geotags/${newTag.id}');
+  }
+
+  res.status(201).json(newTag); // 201: created
+
+});
 
 /**
  * Route '/api/geotags/:id' for HTTP 'GET' requests.
@@ -148,8 +212,20 @@ router.get('/', (req, res) => {
  *
  * The requested tag is rendered as JSON in the response.
  */
-
+//liefert einzelnen Tag
 // TODO: ... your code here ...
+ router.get('/api/geotags/:id', (req, res) =>{
+  const geoTagStore = req.app.locals.geoTagStore;  //Zugriff auf globalen Speicher (store)
+  const id = req.params.id;
+
+  const tag = geoTagStore.getGeoTagById(id);
+
+  if (tag) {  //wenn es einen tag mit der ID gibt:
+    res.status(200).json(tag);
+  } else {
+    res.status(404).json({ error: "GeoTag not found"});
+  }
+ });
 
 
 /**
@@ -165,9 +241,24 @@ router.get('/', (req, res) => {
  * Changes the tag with the corresponding ID to the sent value.
  * The updated resource is rendered as JSON in the response. 
  */
-
+//aktualisiert Tag
 // TODO: ... your code here ...
+router.put('/api/geotags/:id', (req, res) => {
+  const geoTagStore = req.app.locals.geoTagStore;
+  const id = req.params.id; // holt die id aus der url
+  const tagData = req.body; //und die neuen daten aus dem JSON-Body
 
+  // nutzt updateGeoTag(neu) aus geoTagStore, um Tag zu aktualisieren
+  const updatedTag = geoTagStore.updateGeoTag(id, tagData);
+
+  if (updatedTag) { //wenn es geklappt hat:
+      // 200 OK: Erfolgreich aktualisiert, sende Tag zurück
+      res.status(200).json(updatedTag);
+  } else {
+      // 404 Not Found: ID existiert nicht
+      res.status(404).json({ error: "GeoTag not found" });
+  }
+});
 
 /**
  * Route '/api/geotags/:id' for HTTP 'DELETE' requests.
@@ -181,5 +272,17 @@ router.get('/', (req, res) => {
  */
 
 // TODO: ... your code here ...
+router.delete('/api/geotags/:id', (req, res) => {
+  const geoTagStore = req.app.locals.geoTagStore;
+  const id = req.params.id; // holt die id aus der url
 
+  const tag = geoTagStore.getGeoTagById(id); //sucht den Geotag durch seine ID
+
+  if (tag) {  //wenn es diesen Geotag gibt:
+      geoTagStore.removeGeoTagById(id); //wird er gelöscht + response
+      res.status(200).json({ message: "GeoTag deleted", id: id });
+  } else {
+      res.status(404).json({ error: "GeoTag not found" });
+  }
+});
 module.exports = router;

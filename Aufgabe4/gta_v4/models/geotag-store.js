@@ -40,7 +40,8 @@ class InMemoryGeoTagStore{
     // TODO: ... your code here ...
 
     //1. Array zur Speicherung der Geotags, muss nicht ausserhalb zugänglich sein (#)
-    #geoTags = [];  
+    #geoTags = [];
+    #idcounter = 1; //Zählt die IDs
 
     constructor() {
         this.populateGeoTags();
@@ -48,7 +49,12 @@ class InMemoryGeoTagStore{
 
     //Methode zum Hinzufügen von GeoTags zum Store
     addGeoTag(geoTag){
-        if(geoTag instanceof GeoTag){   
+        if(geoTag instanceof GeoTag){ 
+
+            //ID vergeben
+            geoTag.id = this.#idcounter;
+            this.#idcounter++;
+
             this.#geoTags.push(geoTag);     //hinzufügen des GeoTags(, wenn er einer ist)
         } else{
             console.error("Objekt ist kein GeoTag")
@@ -125,7 +131,32 @@ class InMemoryGeoTagStore{
         const hashtagMatches = (tag.hashtag || "").toLowerCase().includes(term); //Match mit dem Hashtag?
         return nameMatches || hashtagMatches; //wenn eins zustrifft
        })
-}
+    }
+
+    // neu: Tag per ID holen
+    getGeoTagById(id) {
+        return this.#geoTags.find(tag => tag.id == id);
+    }
+
+    //neu: Tag per ID löschen
+    removeGeoTagById(id){
+    this.#geoTags = this.#geoTags.filter(tag => tag.id != id); //überschreibt geotags mit einem array mit allen außer den mit der ID
+    }
+
+// neu: Tag aktualisieren (für A4 API PUT /:id)
+    updateGeoTag(id, newTagData) {
+        const tag = this.getGeoTagById(id);
+        if (tag) {
+            // Nur Felder aktualisieren, die neu gesendet wurden
+            if (newTagData.name) tag.name = newTagData.name;
+            if (newTagData.latitude) tag.latitude = newTagData.latitude;
+            if (newTagData.longitude) tag.longitude = newTagData.longitude;
+            if (newTagData.hashtag) tag.hashtag = newTagData.hashtag;
+            if (newTagData.description) tag.description = newTagData.description;
+            return tag;
+        }
+        return null;
+    }
 
 }
 

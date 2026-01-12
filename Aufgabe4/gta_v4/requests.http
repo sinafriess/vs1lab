@@ -1,0 +1,42 @@
+### Konfiguration
+@baseUrl = http://localhost:3000
+
+### 1. Erstellen (Create)
+# Sendet einen neuen GeoTag an den Server
+# Erwartet: Status 201 Created und das neue geoTag 
+POST {{baseUrl}}/api/geotags
+Content-Type: application/json
+
+{
+    "name": "Test in der Bib",
+    "latitude": 48.978,
+    "longitude": 8.403,
+    "hashtag": "#test",
+    "description": "Bib testet API"
+}
+
+### 2. Suchen (Search)
+# Sucht nach dem gerade erstellten Tag (suche nach term)
+GET {{baseUrl}}/api/geotags?searchterm=Bib
+
+### 3. Auslesen (Read)
+# Liest einen Tag mit der ID aus
+
+GET {{baseUrl}}/api/geotags/12
+
+### 4. Ändern (Update)
+# Ändert den Namen des Tags mit der ID 12.
+PUT {{baseUrl}}/api/geotags/12
+Content-Type: application/json
+
+{
+    "name": "Text in der Bib finalFINALFINAAAAAL",
+    "latitude": 49.015,
+    "longitude": 8.395,
+    "hashtag": "#bibupdatefinal",
+    "description": "Wurde erfolgreich geändert"
+}
+
+### 5. Löschen (Delete)
+# Löscht den Tag mit der ID 12.
+DELETE {{baseUrl}}/api/geotags/12
