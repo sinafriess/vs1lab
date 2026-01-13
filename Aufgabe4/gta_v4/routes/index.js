@@ -172,11 +172,11 @@ router.get('/api/geotags', (req,res) => {
   const start = (page - 1) * perPage;
   const end = start + perPage;
 
-  const paginatedResults = results.slice(start, end);
+  const paginatedResults = results.slice(start, end); //slice arbeitet mit start und end-1
   
   //Sendet Antworrt mit HTTP Status 200 (OK) und ergebnis im json Format (+ Pagination-Metadaten)
   res.status(200).json({
-    items: paginatedResults,
+    items: paginatedResults, //results auf die jeweiligen Geotags der Seite angepasst
     page,
     perPage,
     totalPages,

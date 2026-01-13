@@ -165,11 +165,12 @@ class InMemoryGeoTagStore{
         const end = start + perPage;
 
         const items = this.#geoTags.slice(start, end);
+        mapManager.updateMarkers(lat, lon, items);
         
         const totalItems = this.#geoTags.length;
         const totalPages = Math.ceil(totalItems / perPage);
 
-        return {
+        return { //alle daten der geotags zurückgeben
             items,
             page,
             perPage,

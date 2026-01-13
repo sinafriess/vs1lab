@@ -130,7 +130,7 @@ async function updateDiscoveryList(page = currentPage) {
     const radius = document.getElementById("searchRadius").value || 10;
     const searchTerm = document.getElementById("searchKeyword").value || "";
 
-    const url = new URL("/api/geotags", window.location.origin);
+    const url = new URL("/api/geotags", window.location.origin); //alle werte wichtig für die pagination übergeben
     url.searchParams.append("page", page);
     url.searchParams.append("perPage", perPage);
     url.searchParams.append("latitude", lat);
@@ -141,21 +141,24 @@ async function updateDiscoveryList(page = currentPage) {
     const response = await fetch(url);
     const data = await response.json();
 
-    // Liste aktualisieren
+    // liste aktualisieren
     const listEl = document.getElementById("discoveryResults");
-    listEl.innerHTML = "";
-    data.items.forEach(tag => {
+    listEl.innerHTML = ""; //liste leeren
+    data.items.forEach(tag => { //jeder tag dazu
         const li = document.createElement("li");
-        li.textContent = `${tag.name} (${tag.latitude}, ${tag.longitude}) ${tag.hashtag}`;
+        li.textContent = `${tag.name} (${tag.latitude}, ${tag.longitude}) ${tag.hashtag}`; //tag-eigenschaften
         listEl.appendChild(li);
     });
 
-    // Vor-/Zurück-Button
+    // Vor-/Zurück-Button disablen wenns nicht weiter geht
     document.getElementById("prevPage").disabled = (data.page <= 1);
     document.getElementById("nextPage").disabled = (data.page >= data.totalPages);
 
+    //pageInfo in HTML updaten mit neuer seitenzahl
     const pageInfo = document.getElementById("pageInfo");
     pageInfo.textContent = `${data.page} / ${data.totalPages}`;
+
+    mapManager.updateMarkers(lat, lon, data.items)
 
     currentPage = data.page;
 }
@@ -197,14 +200,14 @@ async function handleTaggingSubmit(event) {
     });
 
     //await performDiscoverySearch(); //discovery liste automatisch aktualisieren
-    updateDiscoveryList(currentPage);
+    updateDiscoveryList(currentPage) //pagination
 }
 
 async function handleDiscoverySubmit(event) { //wenn user auf suchen klickt im discovery formular
     event.preventDefault();
     currentPage = 1;
     //await performDiscoverySearch();
-    updateDiscoveryList(currentPage)
+    updateDiscoveryList(currentPage) //pagination
 }
 // Wait for the page to fully load its DOM content, then call updateLocation
 
@@ -219,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .getElementById("discoveryFilterForm")
         .addEventListener("submit", handleDiscoverySubmit);
     
-        //neu pagination stuff
+        //neu pagination stuff (buttons ändern actually die seite)
     document.getElementById("prevPage").addEventListener("click", () => updateDiscoveryList(currentPage - 1));
     document.getElementById("nextPage").addEventListener("click", () => updateDiscoveryList(currentPage + 1));
 
