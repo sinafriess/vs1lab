@@ -22,8 +22,13 @@ console.log("The geoTagging script is going to start...");
 
 const mapManager = new MapManager();
 
-let currentLatitude = null; //am anfang kein standort bekannt 
+let currentLatitude = null; //am anfang kien standort bekannt 
 let currentLongitude = null;
+
+//neu durch Pagination
+let currentPage = 1;
+const perPage = 5;
+
 /**
  * TODO: 'updateLocation'
  * A function to retrieve the current location and update the page.
@@ -102,7 +107,7 @@ function updateLocation() {
 }
 
 
-function updateDiscoveryView(tags) { //löscht alte liste, baut aus JSON neue listeneinträge
+function updateDiscoveryView(tags) {
     const list = document.getElementById("discoveryResults"); //liste aus html holen
     list.innerHTML = ""; // alle bisherigen <li> löschen 
 
@@ -117,7 +122,45 @@ function updateDiscoveryView(tags) { //löscht alte liste, baut aus JSON neue li
     }
 }
 
-async function performDiscoverySearch() { //sucheingaben auslesen und an server schicken 
+//neu: Pagination-Part
+async function updateDiscoveryList(page = currentPage) {
+    currentPage = page;
+    const lat = document.getElementById("discLatitude").value;
+    const lon = document.getElementById("discLongitude").value;
+    const radius = document.getElementById("searchRadius").value || 10;
+    const searchTerm = document.getElementById("searchKeyword").value || "";
+
+    const url = new URL("/api/geotags", window.location.origin);
+    url.searchParams.append("page", page);
+    url.searchParams.append("perPage", perPage);
+    url.searchParams.append("latitude", lat);
+    url.searchParams.append("longitude", lon);
+    url.searchParams.append("radius", radius);
+    if(searchTerm) url.searchParams.append("searchTerm", searchTerm);
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    // Liste aktualisieren
+    const listEl = document.getElementById("discoveryResults");
+    listEl.innerHTML = "";
+    data.items.forEach(tag => {
+        const li = document.createElement("li");
+        li.textContent = `${tag.name} (${tag.latitude}, ${tag.longitude}) ${tag.hashtag}`;
+        listEl.appendChild(li);
+    });
+
+    // Vor-/Zurück-Button
+    document.getElementById("prevPage").disabled = (data.page <= 1);
+    document.getElementById("nextPage").disabled = (data.page >= data.totalPages);
+
+    const pageInfo = document.getElementById("pageInfo");
+    pageInfo.textContent = `${data.page} / ${data.totalPages}`;
+
+    currentPage = data.page;
+}
+
+async function performDiscoverySearch() {
     const keyword = document.getElementById("searchKeyword").value; //sucher angaben auslesen
     const radius  = document.getElementById("searchRadius").value;
     const lat     = document.getElementById("discLatitude").value;
@@ -136,7 +179,7 @@ async function performDiscoverySearch() { //sucheingaben auslesen und an server 
     updateDiscoveryView(tags); //aktualisiert marker auf karte 
 }
 
-async function handleTaggingSubmit(event) { //eingaben als JSON an server schicken
+async function handleTaggingSubmit(event) {
     event.preventDefault(); //damit seite nicht neu lädt 
 
     const geoTag = {
@@ -153,12 +196,15 @@ async function handleTaggingSubmit(event) { //eingaben als JSON an server schick
         body: JSON.stringify(geoTag)
     });
 
-    await performDiscoverySearch(); //discovery liste automatisch aktualisieren
+    //await performDiscoverySearch(); //discovery liste automatisch aktualisieren
+    updateDiscoveryList(currentPage);
 }
 
 async function handleDiscoverySubmit(event) { //wenn user auf suchen klickt im discovery formular
     event.preventDefault();
-    await performDiscoverySearch();
+    currentPage = 1;
+    //await performDiscoverySearch();
+    updateDiscoveryList(currentPage)
 }
 // Wait for the page to fully load its DOM content, then call updateLocation
 
@@ -167,10 +213,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     document
         .getElementById("tag-form")
-        .addEventListener("submit", handleTaggingSubmit); //wird bei tagging aufgerufen 
+        .addEventListener("submit", handleTaggingSubmit); //wird bei event aufgerufen 
 
     document
         .getElementById("discoveryFilterForm")
-        .addEventListener("submit", handleDiscoverySubmit); //wird bei discovery aufgerufen 
+        .addEventListener("submit", handleDiscoverySubmit);
+    
+        //neu pagination stuff
+    document.getElementById("prevPage").addEventListener("click", () => updateDiscoveryList(currentPage - 1));
+    document.getElementById("nextPage").addEventListener("click", () => updateDiscoveryList(currentPage + 1));
+
+    updateDiscoveryList();
 
 });

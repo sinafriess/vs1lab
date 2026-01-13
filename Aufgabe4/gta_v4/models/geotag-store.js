@@ -96,15 +96,16 @@ class InMemoryGeoTagStore{
     getNearbyGeoTags(location, radius){
         if (!location || !radius) return [];
 
-        const radiusSq = radius * radius;
+        const radiusDeg = radius / 111;
+        const radiusSq = radiusDeg * radiusDeg;
 
-        return this.#geoTags.filter(function(tag){
-             const distanceSq = getDistanceSquared(
+        return this.#geoTags.filter(tag => {
+            const distanceSq = getDistanceSquared(
                 location.latitude,
                 location.longitude,
                 tag.latitude,
                 tag.longitude
-            );
+        );
             // Liegt quatrierte Distanz im Umkreis?
             return distanceSq <= radiusSq;
         })  //Alle Geotags, auf die das zutrifft, werden returned
@@ -156,6 +157,25 @@ class InMemoryGeoTagStore{
             return tag;
         }
         return null;
+    }
+
+    // new: Geotags nach Pagination holen
+    getGeoTagsPaginated(page = 1, perPage = 5) {
+        const start = (page - 1) * perPage;
+        const end = start + perPage;
+
+        const items = this.#geoTags.slice(start, end);
+        
+        const totalItems = this.#geoTags.length;
+        const totalPages = Math.ceil(totalItems / perPage);
+
+        return {
+            items,
+            page,
+            perPage,
+            totalPages,
+            totalItems: this.geotags.length
+        };
     }
 
 }

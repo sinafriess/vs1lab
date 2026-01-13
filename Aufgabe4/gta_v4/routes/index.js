@@ -76,7 +76,7 @@ router.post('/discovery', (req, res) => {
   const lat  = parseFloat(req.body.discLatitude);
   const lon  = parseFloat(req.body.discLongitude);
   const radius  = parseFloat(req.body.searchRadius) || 5;
-  const keyword = (req.body.searchKeyword || "").trim();
+  const keyword = (req.body.searchKeyword || req.body.searchTerm || req.body.searchterm || "").trim();
 
   const location = { latitude: lat, longitude: lon };
 
@@ -129,6 +129,9 @@ router.get('/api/geotags', (req,res) => {
   //Robusteres Auslesen des Suchbegriffs
   const queryParam = req.query.searchterm || req.query.searchTerm || req.query.q || "";
 
+  const page = parseInt(req.query.page) || 1; // Start bei Seite 1
+  const perPage = parseInt(req.query.perPage) || 5; // 5 Tags pro Seite
+
   const term = queryParam.toLowerCase().trim();
   const lat = req.query.latitude; //liest Latitude aus url
   const lon = req.query.longitude; // "" Longitude
@@ -144,9 +147,9 @@ router.get('/api/geotags', (req,res) => {
     const location = {latitude: parseFloat(lat), longitude: parseFloat(lon) };
     
     //Unterfall: Wenn zusätzlich ein term (suchbegriff)
-    if(term){
+    if(term != ""){
       //sucht geotags in der Nähe nach suchbegriff
-      results = geoTagStore.getNearbyGeoTags(location, radius, term);
+      results = geoTagStore.searchNearbyGeoTags(location, radius, term);
     } else {
       //sucht in der nähe ohne suchbegriff
       results = geoTagStore.getNearbyGeoTags(location, radius);
@@ -163,9 +166,22 @@ router.get('/api/geotags', (req,res) => {
         });
     }
   }
+
+  const totalItems = results.length;
+  const totalPages = Math.ceil(totalItems / perPage);
+  const start = (page - 1) * perPage;
+  const end = start + perPage;
+
+  const paginatedResults = results.slice(start, end);
   
-  //Sendet Antworrt mit HTTP Status 200 (OK) und ergebnis im json Format
-  res.status(200).json(results);
+  //Sendet Antworrt mit HTTP Status 200 (OK) und ergebnis im json Format (+ Pagination-Metadaten)
+  res.status(200).json({
+    items: paginatedResults,
+    page,
+    perPage,
+    totalPages,
+    totalItems
+});
 
 
 });
