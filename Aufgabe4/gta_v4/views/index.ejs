@@ -75,8 +75,11 @@
                     <label class="discovery__label" for="searchKeyword">Suchbegriff:</label>
                     <input class="discovery__input" type="text" id="searchKeyword" name="searchKeyword" placeholder="z.B. Café, Park">
 
+                    <label class="tagging__label" for="tagDescription">Beschreibung:</label>
+                    <input class="tagging__input" type="text" id="tagDescription" name="tagDescription" placeholder="z.B. schön" rows="3">
+
                     <label class="discovery__label" for="searchRadius">Suchradius (km):</label>
-                    <input class="discovery__input" type="number" id="searchRadius" name="searchRadius" placeholder="z.B. 5" min="1">
+                    <input class="discovery__input" type="number" id="searchRadius" name="searchRadius" placeholder="z.B. 5" min="0.1" step="any">
                    
                     <input type="hidden" id="discLatitude" name="discLatitude" value="<%= latitude || '' %>" readonly>
 
@@ -96,8 +99,14 @@
                        <% if (taglist !== undefined) taglist.forEach(function(gtag) { %>
                             <li><%= gtag.name %> ( <%= gtag.latitude %>,<%= gtag.longitude %>) <%= gtag.hashtag %> </li>
                        <% }); %>
-                        
                     </ul>
+                    <!-- Pagination-Anzeige-->
+                    <div id="paginationControls">
+                        <button id="prevPage">&laquo;</button> <!-- &laquo = « -->
+                        <span id="pageInfo">1 / 1</span>
+                        <button id="nextPage">&raquo;</button> <!-- &raquo = » -->
+                    </div>
+
                 </div>
 
                 <div id="map" class="discovery__map col-6" data-tags='<%= JSON.stringify(taglist || []) %>'> <!-- speichert alle gefundenen geotags -->
